@@ -1,4 +1,3 @@
-use crossterm;
 use google_calendar3::api::{Colors, Event as CalendarEvent};
 use ratatui::style;
 use std::str::FromStr;

@@ -2,16 +2,14 @@ use chrono::{Datelike, Months, NaiveDate};
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{
-    layout::{Constraint::{self, Fill, Length, Min}, Direction, Layout, Rect},
-    DefaultTerminal, Frame, text::Text
+    layout::{Constraint::{self}, Direction, Layout, Rect}, text::Text, widgets::ListState, DefaultTerminal, Frame
 };
-use time::OffsetDateTime;
 use google_calendar3::api::{CalendarListEntry, Event as CalendarEvent};
 use std::path::PathBuf;
 use::directories::ProjectDirs;
 use std::fs;
 
-use crate::{calendar_day_widget::CalendarDayWidget, event_widget::EventWidget, google_cal_backend::CalendarClient};
+use crate::{calendar_day_widget::{CalendarDayWidget, CalendarDayWidgetState}, event_widget::EventWidget, google_cal_backend::CalendarClient};
 use crate::utils::month_to_str;
 
 pub struct App {
@@ -21,7 +19,11 @@ pub struct App {
     calendar_client: CalendarClient,
     /// calendars (ids) to display to the user
     active_calendars: Vec<(CalendarListEntry, bool)>,
+
+    // State
     currently_selected_date: NaiveDate,
+    // [selected day, other days]
+    calendar_view_state: (CalendarDayWidgetState, CalendarDayWidgetState),
 }
 
 #[derive(Debug, Default)]
@@ -74,6 +76,7 @@ impl App {
             calendar_client,
             active_calendars,
             currently_selected_date: chrono::offset::Local::now().date_naive(),
+            calendar_view_state: (CalendarDayWidgetState::default(), CalendarDayWidgetState::default()),
         };
 
         let _ = new_app.calendar_client.sync().await;
@@ -135,6 +138,7 @@ impl App {
         // start at the first day of the month of the selected date
         let mut date = self.currently_selected_date.clone().with_day(1)
             .unwrap_or(NaiveDate::from_ymd(2025, 1, 1));
+
         // we want the first calendar_day to be the previous monday (or date if date is a monday)
         // TODO: choose between Monday and Sunday starting weeks
         date = date -  chrono::TimeDelta::days(date.weekday().num_days_from_monday().into());
@@ -155,12 +159,16 @@ impl App {
                 })
                     .collect();
 
-                frame.render_widget(
+                let is_selected = date == self.currently_selected_date;
+                let state = if is_selected { self.calendar_view_state.0.state_mut() } else { self.calendar_view_state.1.state_mut() };
+
+                frame.render_stateful_widget(
                     CalendarDayWidget::new(
                         event_widgets, 
                         &date
                     ),
-                    area
+                    area,
+                    state
                 );
 
                 // TODO: Use succ_opt instead

@@ -1,14 +1,12 @@
 // Define an event widget
 use google_calendar3::api::{Colors, Event as CalendarEvent};
 use ratatui::{
-    style, 
     buffer::Buffer, 
     layout::Rect, 
     text::Span, 
     style::Style,
     prelude::{Line, Text},
     widgets::Widget};
-use std::str::FromStr;
 
 use crate::utils::get_event_color;
 
