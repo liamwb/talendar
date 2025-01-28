@@ -41,8 +41,8 @@ pub fn get_event_color<'a>(event: &CalendarEvent, colors: &'a Colors) -> style::
         // foreground is Option<&String>, convert to Option<&str>
         .map(|foreground| foreground.as_str());
 
-    let style_color = if let Some(color) = color {
-        style::Color::from_str(color)
+    let style_color = if let Some(c) = color {
+        style::Color::from_str(c)
     } else {
         style::Color::from_str(DEFAULT_COLOR)
     };

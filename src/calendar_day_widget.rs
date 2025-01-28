@@ -1,7 +1,6 @@
 use chrono::{Datelike, NaiveDate};
-use color_eyre::owo_colors::OwoColorize;
 use ratatui::{
-    buffer::Buffer, layout::Rect, style::{Color, Style, Stylize}, widgets::{Block, List, ListState, StatefulWidget, Widget}
+    buffer::Buffer, layout::Rect, style::{Color, Style}, widgets::{Block, List, ListState, StatefulWidget, Widget}
 };
 use crate::event_widget::EventWidget;
 

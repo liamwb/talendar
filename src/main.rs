@@ -1,3 +1,6 @@
+// TODO Remove this and fix everything
+#![allow(deprecated)]
+
 pub use app::App;
 
 pub mod app;

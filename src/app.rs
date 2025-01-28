@@ -2,7 +2,7 @@ use chrono::{Datelike, Months, NaiveDate};
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{
-    layout::{Constraint::{self}, Direction, Layout, Rect}, text::Text, widgets::ListState, DefaultTerminal, Frame
+    layout::{Constraint::{self}, Direction, Layout, Rect}, text::Text, DefaultTerminal, Frame
 };
 use google_calendar3::api::{CalendarListEntry, Event as CalendarEvent};
 use std::path::PathBuf;
@@ -15,9 +15,11 @@ use crate::utils::month_to_str;
 pub struct App {
     /// Is the application running?
     running: bool,
+    #[allow(dead_code)]
     view: CalendarView,
     calendar_client: CalendarClient,
     /// calendars (ids) to display to the user
+    #[allow(dead_code)]
     active_calendars: Vec<(CalendarListEntry, bool)>,
 
     // State
@@ -136,6 +138,7 @@ impl App {
         }
 
         // start at the first day of the month of the selected date
+        // TODO use from_ymp_opt instead
         let mut date = self.currently_selected_date.clone().with_day(1)
             .unwrap_or(NaiveDate::from_ymd(2025, 1, 1));
 
