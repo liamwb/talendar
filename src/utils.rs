@@ -33,20 +33,18 @@ pub fn get_event_color<'a>(event: &CalendarEvent, colors: &'a Colors) -> style::
         return style::Color::from_str(DEFAULT_COLOR).unwrap()
     };
 
-    let mut color = colors.event
+    let color = colors.event
         // event is Option<Hashmap>, we want to lookup in &HashMap
         .as_ref().and_then(|event| event.get(color_id.as_str()))
         // get() returns Option<&ColorDefinition>, we want &foreground
         .and_then(|color_definition| color_definition.foreground.as_ref())
         // foreground is Option<&String>, convert to Option<&str>
-        .map(|foreground| foreground.as_str());
+        .map(|foreground| foreground.as_str())
+        // now we have an Option<&str>, we can unwrap it
+        .unwrap_or(DEFAULT_COLOR);
+        // now we have a bona fide &str
 
-    let style_color = if let Some(c) = color {
-        style::Color::from_str(c)
-    } else {
-        style::Color::from_str(DEFAULT_COLOR)
-    };
-
+    let style_color = style::Color::from_str(color);
     match style_color {
         Ok(res) => res,
         _ => style::Color::from_str(DEFAULT_COLOR).unwrap()

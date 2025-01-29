@@ -1,6 +1,6 @@
 use chrono::{Datelike, NaiveDate};
 use ratatui::{
-    buffer::Buffer, layout::Rect, style::{Color, Style}, widgets::{Block, List, ListState, StatefulWidget, Widget}
+    buffer::Buffer, layout::Rect, style::{Color, Modifier, Style}, widgets::{Block, BorderType, List, ListState, StatefulWidget, Widget}
 };
 use crate::event_widget::EventWidget;
 
@@ -69,7 +69,12 @@ impl StatefulWidget for CalendarDayWidget<'_> {
 
         // if this widget is selected, then highlight it
         if state.is_selected == true {
-            block = block.border_style(Style::default().fg(Color::LightBlue));
+            block = block
+                .border_style(Style::default()
+                    .fg(Color::LightBlue)
+                    .add_modifier(Modifier::BOLD)
+                )
+                .border_type(BorderType::Thick);
         }
 
         let list = List::new(&self.events).block(block);
