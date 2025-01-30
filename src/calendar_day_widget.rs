@@ -52,6 +52,14 @@ impl CalendarDayWidgetState {
     pub fn list_state_mut(&mut self) -> &mut ListState {
         &mut self.list_state
     }
+
+    pub fn is_selected(&mut self) -> & bool {
+        &self.is_selected
+    }
+
+    pub fn set_selected(&mut self, select: bool) {
+        self.is_selected = select;
+    }
 }
 
 impl StatefulWidget for CalendarDayWidget<'_> {

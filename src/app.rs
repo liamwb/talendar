@@ -1,4 +1,4 @@
-use chrono::{Datelike, Months, NaiveDate};
+use chrono::{Datelike, Days, Months, NaiveDate};
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{
@@ -162,8 +162,15 @@ impl App {
                 })
                     .collect();
 
-                let is_selected = date == self.currently_selected_date;
-                let state = if is_selected { self.calendar_view_state.0.state_mut() } else { self.calendar_view_state.1.state_mut() };
+                let is_selected = { date == self.currently_selected_date };
+                let state: &mut CalendarDayWidgetState = if is_selected { self.calendar_view_state.0.state_mut() } else { self.calendar_view_state.1.state_mut() };
+                // update the selection status of the appropriate calendar_view_state 
+                // TODO this is not efficient, we only see the selected date once per outer loop
+                if is_selected && !state.is_selected() {
+                    state.set_selected(true)
+                } else if !is_selected && *state.is_selected() {
+                    state.set_selected(false)
+                }
 
                 frame.render_stateful_widget(
                     CalendarDayWidget::new(
@@ -227,8 +234,32 @@ impl App {
             // Add other key handlers here.
             (_, KeyCode::Char('p')) => self.currently_selected_date = self.currently_selected_date - Months::new(1),
             (_, KeyCode::Char('n')) => self.currently_selected_date = self.currently_selected_date + Months::new(1),
+            (_, KeyCode::Char('l')) => self.next_day(),
+            (_, KeyCode::Char('h')) => self.previous_day(),
+            (_, KeyCode::Char('j')) => self.next_week(),
+            (_, KeyCode::Char('k')) => self.previous_week(),
             _ => {}
         }
+    }
+
+    /// sets [`self.currently_selected_date`] to the next day
+    fn next_day(&mut self) {
+        self.currently_selected_date = self.currently_selected_date + Days::new(1)
+    }
+
+    /// sets [`self.currently_selected_date`] to the previous day
+    fn previous_day(&mut self) {
+        self.currently_selected_date = self.currently_selected_date - Days::new(1)
+    }
+
+    /// sets [`self.currently_selected_date`] to the next week
+    fn next_week(&mut self) {
+        self.currently_selected_date = self.currently_selected_date + Days::new(7)
+    }
+
+    /// sets [`self.currently_selected_date`] to the previous week
+    fn previous_week(&mut self) {
+        self.currently_selected_date = self.currently_selected_date - Days::new(7)
     }
 
     /// Set running to false to quit the application.
