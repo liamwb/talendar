@@ -69,8 +69,6 @@ impl StatefulWidget for CalendarDayWidget<'_> {
         let mut title = self.date.day().to_string();
         if &chrono::offset::Local::now().date_naive() == self.date {
             title += " [Today]";
-            // TODO temporary for testing
-            state.is_selected = true;
         }
 
         let mut block = Block::bordered().title(title);
