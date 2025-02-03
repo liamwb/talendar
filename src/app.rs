@@ -1,5 +1,5 @@
 use chrono::{Datelike, Days, Months, NaiveDate};
-use color_eyre::Result;
+use color_eyre::{Result};
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{
     layout::{Constraint::{self}, Direction, Layout, Rect}, text::Text, DefaultTerminal, Frame
@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use::directories::ProjectDirs;
 use std::fs;
 
-use crate::{calendar_day_widget::{CalendarDayWidget, CalendarDayWidgetState}, event_widget::EventWidget, google_cal_backend::CalendarClient};
+use crate::{calendar_day_widget::{CalendarDayWidget, CalendarDayWidgetState}, event_widget::EventWidget, google_cal_backend::CalendarClient, inspect_event_popup::draw_inspect_event_popup};
 use crate::utils::month_to_str;
 
 pub struct App {
@@ -26,6 +26,8 @@ pub struct App {
     currently_selected_date: NaiveDate,
     // [selected day, other days]
     calendar_view_state: (CalendarDayWidgetState, CalendarDayWidgetState),
+
+    show_inspect_event_popup: bool,
 }
 
 #[derive(Debug, Default)]
@@ -79,6 +81,7 @@ impl App {
             active_calendars,
             currently_selected_date: chrono::offset::Local::now().date_naive(),
             calendar_view_state: (CalendarDayWidgetState::default(), CalendarDayWidgetState::default()),
+            show_inspect_event_popup: false
         };
 
         let _ = new_app.calendar_client.sync().await;
@@ -103,6 +106,10 @@ impl App {
     /// - <https://github.com/ratatui/ratatui/tree/master/examples>
     fn draw(&mut self, frame: &mut Frame) {
         self.draw_month_view(frame);
+
+        if self.show_inspect_event_popup {
+            draw_inspect_event_popup(frame, CalendarEvent::default())
+        }
     }
 
     fn draw_month_view(&mut self, frame: &mut Frame) {
@@ -238,6 +245,7 @@ impl App {
             (_, KeyCode::Char('h')) => self.previous_day(),
             (_, KeyCode::Char('j')) => self.next_week(),
             (_, KeyCode::Char('k')) => self.previous_week(),
+            (_, KeyCode::Char('i')) => self.show_inspect_event_popup = !self.show_inspect_event_popup,
             _ => {}
         }
     }
