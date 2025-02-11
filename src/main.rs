@@ -8,7 +8,7 @@ pub mod google_cal_backend;
 mod event_widget;
 mod calendar_day_widget;
 mod utils;
-mod inspect_event_popup;
+mod inspect_day_popup;
 
 
 #[tokio::main]
