@@ -12,7 +12,7 @@ color-eyre = "0.6.3"
 time = "0.3.37"
 google-calendar3 = "6.0.0"
 serde = {version = "1.0.217", features = ["derive"]}
-serde_json = "1.0.135"
+serde_json = "1.0.139"
 tokio = {version = "1.43.0", features = ["rt-multi-thread"]}
 oauth2 = "4.4.2"
 url = "2.5.4"
