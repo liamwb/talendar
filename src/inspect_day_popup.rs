@@ -2,6 +2,9 @@ use ratatui::{
     layout::Flex, prelude::{Constraint, Layout, Rect}, widgets::{Block, Clear, Table, Row}, Frame, 
     };
 use google_calendar3::api::Event as CalendarEvent;
+use std::iter::zip;
+
+use crate::google_cal_backend::CalendarEventExt;
 
 
 
@@ -27,8 +30,13 @@ pub fn draw_inspect_day_popup(frame: &mut Frame, events: Option<&Vec<CalendarEve
         )
         .collect::<Vec<String>>();
 
-    let rows = event_titles.into_iter().map(
-        |title| Row::new([title])
+    let event_start_strings = events_vec.into_iter()
+        .map(
+            |event| event.get_start_string()
+        );
+
+    let rows = zip(event_titles, event_start_strings).map(
+        |(title, start_string)| Row::new([title, start_string])
     )
         .collect::<Vec<Row>>();
 

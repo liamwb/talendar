@@ -267,6 +267,8 @@ pub trait CalendarEventExt {
     fn get_naive_date(&self) -> Option<NaiveDate>;
 
     fn get_naive_end_date(&self) -> Option<NaiveDate>;
+
+    fn get_start_string(&self) -> String;
 }
 
 impl CalendarEventExt for CalendarEvent {
@@ -307,6 +309,31 @@ impl CalendarEventExt for CalendarEvent {
                 }
             }
             None => None
+        }
+    }
+
+    /// Get the start time of the event. If the event all-day there will be no start time, and the
+    /// result will have "ALL DAY" appended. If the event is not all day then the string
+    /// representation its date_time will be returned
+    fn get_start_string(&self) -> String {
+        match &self.start {
+            Some(event_date_time) => {
+                // First check in date_time as it contains more info than date
+                if let Some(date_time) = event_date_time.date_time {
+                    date_time.to_string()
+                }
+                // if date_time is empty, then check for a date
+                else if let Some(date) = event_date_time.date {
+                    date.to_string()
+                }
+                // if all else fails, return some informative default
+                else{
+                    String::from("No Start Time")
+                }
+            }
+            None => {
+                String::from("No Start Time")
+            }
         }
     }
 }
