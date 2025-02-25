@@ -3,6 +3,7 @@ extern crate hyper_rustls;
 
 use std::{collections::HashMap, path::PathBuf};
 use chrono::naive::NaiveDate;
+use chrono::Local;
 
 use rustls;
 use google_calendar3::{api::{CalendarListEntry, Colors, Event as CalendarEvent, EventListCall}, hyper_util, yup_oauth2, CalendarHub, Error};
@@ -288,7 +289,7 @@ impl CalendarEventExt for CalendarEvent {
                 if let Some(date) = event_date_time.date {
                     Some(date)
                 } else if let Some(date_time) = event_date_time.date_time {
-                    Some(date_time.date_naive())
+                    Some(date_time.with_timezone(&Local).date_naive())
                 } else {
                     None
                 }
@@ -320,11 +321,11 @@ impl CalendarEventExt for CalendarEvent {
             Some(event_date_time) => {
                 // First check in date_time as it contains more info than date
                 if let Some(date_time) = event_date_time.date_time {
-                    date_time.to_string()
+                    date_time.with_timezone(&Local).to_string()
                 }
                 // if date_time is empty, then check for a date
                 else if let Some(date) = event_date_time.date {
-                    date.to_string()
+                    date.to_string() + " ALL DAY"
                 }
                 // if all else fails, return some informative default
                 else{

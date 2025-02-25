@@ -32,7 +32,7 @@ pub fn draw_inspect_day_popup(frame: &mut Frame, events: Option<&Vec<CalendarEve
 
     let event_start_strings = events_vec.into_iter()
         .map(
-            |event| event.get_start_string()
+            |event| event.get_start_string() // TODO some of these are not appearing e.g. 22nd of Dec
         );
 
     let rows = zip(event_titles, event_start_strings).map(
