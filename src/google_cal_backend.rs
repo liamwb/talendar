@@ -1,12 +1,12 @@
 extern crate hyper;
 extern crate hyper_rustls;
 
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::HashMap, path::PathBuf, pin::Pin, future::Future};
 use chrono::naive::NaiveDate;
 use chrono::Local;
 
 use rustls;
-use google_calendar3::{api::{CalendarListEntry, Colors, Event as CalendarEvent, EventListCall}, hyper_util, yup_oauth2, CalendarHub, Error};
+use google_calendar3::{api::{CalendarListEntry, Colors, Event as CalendarEvent, EventListCall}, hyper_util, yup_oauth2::{self, authenticator_delegate::{InstalledFlowDelegate, DefaultInstalledFlowDelegate}}, CalendarHub, Error};
 use serde::{Deserialize, Serialize};
 use localzone;
 
@@ -236,6 +236,7 @@ pub async fn initialize_calendar_hub(cache_path: &PathBuf) -> CalendarHub<hyper_
         yup_oauth2::InstalledFlowReturnMethod::HTTPRedirect,
     )
         .persist_tokens_to_disk(cache_path.to_str().unwrap().to_owned() + "tokenfile.json")
+        .flow_delegate(Box::new(InstalledFlowBrowserDelegate))
         .build()
         .await
         .expect("Failed to create Authenticator");
@@ -352,5 +353,41 @@ fn get_event_naive_date(event: &CalendarEvent) -> Option<NaiveDate> {
             }
         }
         None => None
+    }
+}
+
+
+
+//TODO so far these are the same as the DefaultInstalledFlowDelegate definitions, I need to change
+//them so they output to some ratatui ui instead of sdout
+
+// The following code is taken from the yup_oauth2 examples: https://github.com/dermesser/yup-oauth2/blob/52e29d8db1cd91e6074d6f589bf586220ad05ec4/examples/custom_flow.rs
+/// async function to be pinned by the `present_user_url` method of the trait
+/// we use the existing `DefaultInstalledFlowDelegate::present_user_url` method as a fallback for
+/// when the browser did not open for example, the user still see's the URL.
+async fn browser_user_url(url: &str, need_code: bool) -> Result<String, String> {
+    if webbrowser::open(url).is_ok() {
+        println!("webbrowser was successfully opened.");
+    }
+    let def_delegate = DefaultInstalledFlowDelegate;
+    def_delegate.present_user_url(url, need_code).await
+}
+
+/// our custom delegate struct we will implement a flow delegate trait for:
+/// in this case we will implement the `InstalledFlowDelegated` trait
+#[derive(Copy, Clone)]
+struct InstalledFlowBrowserDelegate;
+
+/// here we implement only the present_user_url method with the added webbrowser opening
+/// the other behaviour of the trait does not need to be changed.
+impl InstalledFlowDelegate for InstalledFlowBrowserDelegate {
+    /// the actual presenting of URL and browser opening happens in the function defined above here
+    /// we only pin it
+    fn present_user_url<'a>(
+        &'a self,
+        url: &'a str,
+        need_code: bool,
+    ) -> Pin<Box<dyn Future<Output = Result<String, String>> + Send + 'a>> {
+        Box::pin(browser_user_url(url, need_code))
     }
 }
