@@ -238,7 +238,7 @@ pub async fn initialize_calendar_hub(cache_path: &PathBuf) -> CalendarHub<hyper_
         .persist_tokens_to_disk(cache_path.to_str().unwrap().to_owned() + "tokenfile.json")
         .build()
         .await
-        .unwrap();
+        .expect("Failed to create Authenticator");
 
     // It seems that rustls have changed their crypto provider api to support different
     // providers and use aws_lc_rs by default, but hyper_rustls has not been updated to reflect
