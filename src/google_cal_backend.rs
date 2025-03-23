@@ -356,10 +356,11 @@ fn get_event_naive_date(event: &CalendarEvent) -> Option<NaiveDate> {
     }
 }
 
-
-
-//TODO so far these are the same as the DefaultInstalledFlowDelegate definitions, I need to change
-//them so they output to some ratatui ui instead of sdout
+////////////////////////////////////////////////////////////
+//                                                        //
+// Example Implementation of custom InstalledFlowDelegate //
+//                                                        //
+////////////////////////////////////////////////////////////
 
 // The following code is taken from the yup_oauth2 examples: https://github.com/dermesser/yup-oauth2/blob/52e29d8db1cd91e6074d6f589bf586220ad05ec4/examples/custom_flow.rs
 /// async function to be pinned by the `present_user_url` method of the trait
@@ -389,5 +390,26 @@ impl InstalledFlowDelegate for InstalledFlowBrowserDelegate {
         need_code: bool,
     ) -> Pin<Box<dyn Future<Output = Result<String, String>> + Send + 'a>> {
         Box::pin(browser_user_url(url, need_code))
+    }
+}
+
+
+
+///////////////////////////////////////////
+//                                       //
+// Custom ratatui InstalledFlowDelegate  //
+//                                       //
+///////////////////////////////////////////
+#[derive(Copy, Clone)]
+struct InstalledFlowBrowserDelegateRatatui;
+
+impl InstalledFlowDelegate for InstalledFlowBrowserDelegateRatatui {
+
+    fn present_user_url<'a>(
+            &'a self,
+            url: &'a str,
+            need_code: bool,
+        ) -> Pin<Box<dyn Future<Output = Result<String, String>> + Send + 'a>> {
+        todo!()
     }
 }
